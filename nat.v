@@ -149,14 +149,17 @@ Qed.
 Theorem mul_id_exist : exists (s : nat), forall (n : nat), s * n = n.
 Proof. exists 1. apply mul_1_l. Qed.
 
-Theorem mul_compat_eq : forall (a b c : nat), a * c = b * c -> a = b.
+Theorem mul_compat_eq : forall (a b c : nat), c <> 0 -> a * c = b * c -> a = b.
 Proof.
+  intros a b c H.
+  induction c as [| c' IHc'].
   admit.
 Admitted.
 
 Theorem mul_id_uniq : forall (n m : nat), n <> 0 -> m <> 0 -> m * n = n -> m = 1.
 Proof.
-  intros n m _ _ H.
+  intros n m Hn _ H.
   apply mul_compat_eq with n.
-  rewrite mul_1_l. assumption.
+  - apply Hn.
+  - rewrite mul_1_l. assumption.
 Qed.
