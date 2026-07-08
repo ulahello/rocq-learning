@@ -54,22 +54,21 @@ Theorem add_comm : forall (n m : nat), n + m = m + n.
 Proof.
   intros n m. induction n as [| n' IHn'].
   - rewrite add_0_r. reflexivity.
-  - rewrite add_n_S_m. simpl. rewrite IHn'. reflexivity.
+  - simpl. rewrite add_n_S_m, IHn'. reflexivity.
 Qed.
 
 Theorem add_id_exist : exists (m : nat), forall (n : nat), m + n = n.
 Proof. exists 0. reflexivity. Qed.
 
-Theorem add_compat_eq : forall (a b c : nat), a + c = b + c -> a = b.
+Theorem add_compat_eq : forall (a b c : nat), a + c = b + c <-> a = b.
 Proof.
-  intros a b c H. induction c as [| c' IHc'].
-  - rewrite <- add_0_r. symmetry.
-    rewrite <- add_0_r. symmetry.
-    assumption.
-  - apply IHc'.
-    rewrite add_n_S_m in H.
-    rewrite add_n_S_m in H.
-    inversion H. reflexivity.
+  intros a b c. split.
+  - intros H. induction c as [| c' IHc'].
+    + rewrite add_0_r, add_0_r in H. assumption.
+    + apply IHc'.
+      rewrite add_n_S_m, add_n_S_m in H.
+      inversion H. reflexivity.
+  - intros H. subst. reflexivity.
 Qed.
 
 Theorem add_id_uniq : forall (n m : nat), m + n = n -> m = 0.
@@ -97,19 +96,6 @@ Proof.
   - simpl. rewrite IHn'. reflexivity.
 Qed.
 
-Theorem distr_l : forall (a b c : nat), a * (b + c) = (a * b) + (a * c).
-Proof.
-  intros a b c. induction a as [| a' IHa'].
-  - reflexivity.
-  - simpl. rewrite IHa'.
-    rewrite add_assoc, add_assoc.
-    enough (c + (a'*b + a'*c) = a'*b + (c + a'*c)) as H.
-    + rewrite H. reflexivity.
-    + rewrite add_comm, add_assoc.
-      assert (a'*c + c = c + a'*c) as H by apply add_comm.
-      rewrite H. reflexivity.
-Qed.
-
 Lemma mul_0_l : forall (n : nat), 0 * n = 0.
 Proof. reflexivity. Qed.
 
@@ -120,21 +106,34 @@ Proof.
   - simpl. rewrite IHn'. reflexivity.
 Qed.
 
+Theorem distr_l : forall (a b c : nat), a * (b + c) = (a * b) + (a * c).
+Proof.
+  intros a b c. induction a as [| a' IHa'].
+  - reflexivity.
+  - simpl. rewrite IHa'.
+    rewrite <- add_assoc, <- add_assoc. apply add_compat_eq.
+    assert (c + a' * b = a' * b + c) as H by apply add_comm.
+    rewrite add_assoc, add_assoc, H. reflexivity.
+Qed.
+
+Lemma mul_n_S_m : forall (n m : nat), n * S m = n + n * m.
+Proof.
+  intros n m.
+  assert (S m = 1 + m) as H by reflexivity.
+  rewrite H, distr_l, mul_1_r. reflexivity.
+Qed.
+
 Theorem mul_comm : forall (a b : nat), a * b = b * a.
 Proof.
   intros a b. induction a as [| a' IHa'].
-  - simpl. rewrite mul_0_r. reflexivity.
-  - simpl. rewrite IHa'.
-    enough (b * S a' = b * (a' + 1)) as H.
-    + rewrite H, distr_l, mul_1_r, add_comm. reflexivity.
-    + rewrite add_comm. simpl. reflexivity.
+  - rewrite mul_0_r. reflexivity.
+  - simpl. rewrite IHa', mul_n_S_m. reflexivity.
 Qed.
 
 Theorem distr_r : forall (a b c : nat), (a + b) * c = (a * c) + (b * c).
 Proof.
   intros a b c.
-  rewrite mul_comm.
-  rewrite distr_l.
+  rewrite mul_comm, distr_l.
   rewrite mul_comm, add_comm.
   rewrite mul_comm, add_comm. reflexivity.
 Qed.
@@ -149,11 +148,13 @@ Qed.
 Theorem mul_id_exist : exists (s : nat), forall (n : nat), s * n = n.
 Proof. exists 1. apply mul_1_l. Qed.
 
-Theorem mul_compat_eq : forall (a b c : nat), c <> 0 -> a * c = b * c -> a = b.
+Theorem mul_compat_eq : forall (a b c : nat), c <> 0 -> a * c = b * c <-> a = b.
 Proof.
-  intros a b c H.
-  induction c as [| c' IHc'].
-  admit.
+  intros a b c Hc. split.
+  - intros H. induction c as [| c' IHc'].
+    + contradiction.
+    + admit.
+  - intros H. subst. reflexivity.
 Admitted.
 
 Theorem mul_id_uniq : forall (n m : nat), n <> 0 -> m <> 0 -> m * n = n -> m = 1.
