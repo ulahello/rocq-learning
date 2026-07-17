@@ -78,6 +78,93 @@ Proof.
   rewrite add_0_l. assumption.
 Qed.
 
+Definition pred (n : nat) : nat :=
+  match n with
+  | O => O
+  | S n' => n'
+  end.
+
+Fixpoint sub (a b : nat) : nat :=
+  match b with
+  | O => a
+  | S c => sub (pred a) c
+  end.
+
+Notation "a - b" := (sub a b) (at level 50, left associativity).
+
+Theorem sub_0_r : forall (n : nat), n - 0 = n.
+Proof. reflexivity. Qed.
+
+Theorem sub_0_l : forall (n : nat), 0 - n = 0.
+Proof. intros n. induction n; trivial. Qed.
+
+Theorem sub_annih : forall (n : nat), n - n = 0.
+Proof. intros n. induction n; trivial. Qed.
+
+Definition le (a b : nat) := a - b = 0.
+Infix "<=" := le (at level 70).
+
+Theorem le_refl : forall (n : nat), n <= n.
+Proof. apply sub_annih. Qed.
+
+Theorem le_trans : forall (a b c : nat), a <= b -> b <= c -> a <= c.
+Proof.
+  intros a b c L R.
+  induction c as [| c'].
+  - unfold le in R.
+    rewrite sub_0_r in R.
+    rewrite <- R.
+    assumption.
+  - admit.
+Admitted.
+
+Lemma le_eq : forall (a b : nat), (a <= b /\ b <= a) <-> a = b.
+Proof.
+  intros a b. split.
+  - intros [L R].
+    induction b as [| b' IHb'].
+    + unfold le in L.
+      rewrite sub_0_r in L.
+      assumption.
+    + induction a as [| a' IHa'].
+      * discriminate.
+      * admit.
+  (* TODO: the structure of this proof is the same as the mul_uniq
+  proof. it feels like i'm missing an important proof structure.. *)
+  - intros H. subst.
+    split; apply le_refl.
+Admitted.
+
+Lemma S_compat_le_l : forall (a b : nat), a <= b -> S a <= S b.
+Proof.
+  intros a b H.
+  admit.
+Admitted.
+
+Lemma S_compat_le_r : forall (a b : nat), S a <= S b -> a <= b.
+Proof.
+  intros a b H.
+  admit.
+Admitted.
+
+Theorem add_compat_le : forall (a b c : nat), a <= b <-> a + c <= b + c.
+Proof.
+  intros a b c. split; intros H.
+  - induction c as [| c' IHc'].
+    + do 2 rewrite add_0_r.
+      assumption.
+    + do 2 rewrite add_n_S_m.
+      apply S_compat_le_l.
+      assumption.
+  - induction c as [| c' IHc'].
+    + do 2 rewrite add_0_r in H.
+      assumption.
+    + do 2 rewrite add_n_S_m in H.
+      apply S_compat_le_r in H.
+      apply IHc'.
+      assumption.
+Qed.
+
 Fixpoint mul (a b : nat) : nat :=
   match a with
   | O => O
