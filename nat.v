@@ -1,5 +1,7 @@
 Set Mangle Names.
 
+From Corelib Require Classes.RelationClasses.
+
 Inductive nat : Set :=
   | O : nat
   | S : nat -> nat.
@@ -71,6 +73,16 @@ Proof.
   - intros H. subst. reflexivity.
 Qed.
 
+Lemma S_compat_eq : forall (a b : nat), S a = S b <-> a = b.
+Proof.
+  (* TODO: golf *)
+  intros a b.
+  assert (S a = a + 1) as Ha by (rewrite add_comm; reflexivity).
+  assert (S b = b + 1) as Hb by (rewrite add_comm; reflexivity).
+  rewrite Ha, Hb.
+  apply add_compat_eq.
+Qed.
+
 Theorem add_id_uniq : forall (n m : nat), m + n = n -> m = 0.
 Proof.
   intros n m H.
@@ -92,59 +104,146 @@ Fixpoint sub (a b : nat) : nat :=
 
 Notation "a - b" := (sub a b) (at level 50, left associativity).
 
-Theorem sub_0_r : forall (n : nat), n - 0 = n.
+Lemma sub_0_r : forall (n : nat), n - 0 = n.
 Proof. reflexivity. Qed.
 
-Theorem sub_0_l : forall (n : nat), 0 - n = 0.
+Lemma sub_0_l : forall (n : nat), 0 - n = 0.
 Proof. intros n. induction n; trivial. Qed.
 
-Theorem sub_annih : forall (n : nat), n - n = 0.
+Lemma sub_annih : forall (n : nat), n - n = 0.
 Proof. intros n. induction n; trivial. Qed.
+
+Lemma sub_Sn_Sm : forall (n m : nat), S n - S m = n - m.
+Proof.
+  intros a. induction a as [| a' IHa'];
+    intros b; induction b as [| b' IHb'];
+    reflexivity.
+Qed.
+
+Lemma sub_nm_or_mn_0 : forall (n m : nat), n - m = 0 \/ m - n = 0.
+Proof.
+  intros a. induction a as [| a' IHa'].
+  - intros b. rewrite sub_0_l. tauto.
+  - intros [| b].
+    + rewrite sub_0_l. tauto.
+    + rewrite sub_Sn_Sm.
+      apply IHa'.
+Qed.
+
+Lemma sub_nz_diff : forall (n m : nat), n - m <> 0 -> n <> m.
+Proof.
+  intros a. induction a as [| a' IHa'].
+  - intros b. rewrite sub_0_l. contradiction.
+  - intros [| b'].
+    + rewrite sub_0_r. tauto.
+    + rewrite sub_Sn_Sm.
+      intros H.
+      (* TODO: golf *)
+      enough (a' <> b') as H'.
+      * pose (S_compat_eq a' b') as E.
+        intros C.
+        apply H', E.
+        assumption.
+      * apply IHa'.
+        assumption.
+Qed.
 
 Definition le (a b : nat) := a - b = 0.
 Infix "<=" := le (at level 70).
 
+Definition lt (a b : nat) := a <= b /\ a <> b.
+Infix "<" := lt (at level 70).
+
 Theorem le_refl : forall (n : nat), n <= n.
 Proof. apply sub_annih. Qed.
 
-Theorem le_trans : forall (a b c : nat), a <= b -> b <= c -> a <= c.
-Proof.
-  intros a b c L R.
-  induction c as [| c'].
-  - unfold le in R.
-    rewrite sub_0_r in R.
-    rewrite <- R.
-    assumption.
-  - admit.
-Admitted.
+Theorem lt_irrefl : forall (n : nat), ~(n < n).
+Proof. unfold lt. tauto. Qed.
 
-Lemma le_eq : forall (a b : nat), (a <= b /\ b <= a) <-> a = b.
+Lemma S_compat_le : forall (a b : nat), a <= b <-> S a <= S b.
 Proof.
-  intros a b. split.
-  - intros [L R].
-    induction b as [| b' IHb'].
-    + unfold le in L.
-      rewrite sub_0_r in L.
+  intros a b.
+  unfold le.
+  rewrite sub_Sn_Sm.
+  tauto.
+Qed.
+
+Theorem le_eq : forall (a b : nat), (a <= b /\ b <= a) <-> a = b.
+Proof.
+  intros a.
+  induction a as [| a' IHa'].
+  - intros b; split.
+    + unfold le. rewrite sub_0_r.
+      intros [_ H]. symmetry. assumption.
+    + intros H. rewrite <- H.
+      split; apply le_refl.
+  - intros b. split.
+    + destruct b as [| b'].
+      * unfold le. intros [H _].
+        rewrite sub_0_r in H.
+        discriminate.
+      * intros [L R].
+        enough (a' = b') by (subst; reflexivity).
+        enough (a' <= b' /\ b' <= a') by (apply IHa'; assumption).
+        split; apply S_compat_le; assumption.
+    + intros H. rewrite H.
+      split; apply le_refl.
+Qed.
+
+Theorem le_neg : forall (a b : nat), ~(a <= b) <-> b < a.
+Proof.
+  intros a b.
+  split; intros H.
+  - unfold lt, le in *. split.
+    + pose (sub_nm_or_mn_0 a b) as H'.
+      destruct H'.
+      * contradiction.
+      * assumption.
+    + symmetry. apply sub_nz_diff.
       assumption.
-    + induction a as [| a' IHa'].
+  - unfold lt, le in *.
+    destruct a as [| a'].
+    + tauto.
+    + destruct H as [Hle Hne].
+      destruct (S a' - b) eqn:gt.
+      * assert (b = S a') by (apply le_eq; split; assumption).
+        contradiction.
       * discriminate.
-      * admit.
-  (* TODO: the structure of this proof is the same as the mul_uniq
-  proof. it feels like i'm missing an important proof structure.. *)
-  - intros H. subst.
-    split; apply le_refl.
-Admitted.
+Qed.
 
-Lemma S_compat_le_l : forall (a b : nat), a <= b -> S a <= S b.
+Lemma le_nz_diff : forall (a b : nat), a - b <> 0 -> b < a.
+Proof. apply le_neg. Qed.
+
+Lemma le_succ_r : forall (a b : nat), a <= b -> a <= S b.
 Proof.
-  intros a b H.
   admit.
 Admitted.
 
-Lemma S_compat_le_r : forall (a b : nat), S a <= S b -> a <= b.
+Lemma le_pred_l : forall (a b : nat), a <= b -> pred a <= b.
 Proof.
-  intros a b H.
   admit.
+Admitted.
+
+Theorem le_trans : forall (a b c : nat), a <= b -> b <= c -> a <= c.
+  intros a b c L R.
+  generalize dependent c.
+  induction b as [| b' IHb'].
+  - intros c R.
+    unfold le in L.
+    rewrite sub_0_r in L.
+    rewrite <- L in R.
+    assumption.
+  - intros c R.
+    destruct (b' - a) as [|diff] eqn:E.
+    + assert (b' <= a) as E' by apply E.
+      admit.
+    + apply IHb'.
+      * apply le_neg. apply le_neg. assert (a <= b') as E'. {
+          admit.
+        }
+        admit.
+        (* assumption. *)
+      * apply le_pred_l in R. apply R.
 Admitted.
 
 Theorem add_compat_le : forall (a b c : nat), a <= b <-> a + c <= b + c.
@@ -154,13 +253,13 @@ Proof.
     + do 2 rewrite add_0_r.
       assumption.
     + do 2 rewrite add_n_S_m.
-      apply S_compat_le_l.
+      apply S_compat_le.
       assumption.
   - induction c as [| c' IHc'].
     + do 2 rewrite add_0_r in H.
       assumption.
     + do 2 rewrite add_n_S_m in H.
-      apply S_compat_le_r in H.
+      apply S_compat_le in H.
       apply IHc'.
       assumption.
 Qed.
