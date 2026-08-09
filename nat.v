@@ -216,35 +216,32 @@ Proof. apply le_neg. Qed.
 
 Lemma le_succ_r : forall (a b : nat), a <= b -> a <= S b.
 Proof.
-  admit.
-Admitted.
+  intros a. induction a as [| a' IHa'].
+  - tauto.
+  - intros [| b] H; try discriminate.
+    apply IHa', S_compat_le.
+    assumption.
+Qed.
 
 Lemma le_pred_l : forall (a b : nat), a <= b -> pred a <= b.
 Proof.
-  admit.
-Admitted.
+  intros a. induction a as [| a' IHa'].
+  - tauto.
+  - intros [| b] H; try discriminate.
+    apply IHa', S_compat_le.
+    assumption.
+Qed.
 
 Theorem le_trans : forall (a b c : nat), a <= b -> b <= c -> a <= c.
-  intros a b c L R.
-  generalize dependent c.
-  induction b as [| b' IHb'].
-  - intros c R.
-    unfold le in L.
-    rewrite sub_0_r in L.
-    rewrite <- L in R.
-    assumption.
-  - intros c R.
-    destruct (b' - a) as [|diff] eqn:E.
-    + assert (b' <= a) as E' by apply E.
-      admit.
-    + apply IHb'.
-      * apply le_neg. apply le_neg. assert (a <= b') as E'. {
-          admit.
-        }
-        admit.
-        (* assumption. *)
-      * apply le_pred_l in R. apply R.
-Admitted.
+  intros a.
+  induction a as [| a' IHa'].
+  - intros b c _ _. unfold le.
+    rewrite sub_0_l.
+    reflexivity.
+  - intros [| b'] [| c'] L R; try discriminate.
+    apply -> S_compat_le.
+    apply (IHa' b' c'); apply S_compat_le; assumption.
+Qed.
 
 Theorem add_compat_le : forall (a b c : nat), a <= b <-> a + c <= b + c.
 Proof.
