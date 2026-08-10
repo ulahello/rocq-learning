@@ -346,19 +346,14 @@ Proof.
   - intros b c Hc.
     split; intros H; apply le_0_l.
   - intros [| b'] c Hc.
-    + simpl. split; intros H.
+    + split; intros H.
       * discriminate.
-      * apply le_0_r in H.
-        apply add_eq_0 in H.
-        -- contradiction.
-        -- assumption.
-    + simpl. split; intros H.
+      * contradict H. apply add_eq_0, Hc.
+    + split; intros H.
       * apply S_compat_le in H.
         apply add_compat_le_l, IHa'; assumption.
       * apply add_compat_le_l in H.
         apply -> S_compat_le.
-        apply <- IHa'.
-        -- apply H.
-        -- exact Hc.
+        apply <- (IHa' b' c); assumption.
 Qed.
 
