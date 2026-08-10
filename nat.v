@@ -170,23 +170,13 @@ Qed.
 
 Theorem le_neg : forall (a b : nat), ~(a <= b) <-> b < a.
 Proof.
-  intros a b.
-  split; intros H.
-  - unfold lt, le in *. split.
-    + pose (sub_nm_or_mn_0 a b) as H'.
-      destruct H'.
-      * contradiction.
-      * assumption.
-    + symmetry. apply sub_nz_diff.
-      assumption.
-  - unfold lt, le in *.
-    destruct a as [| a'].
-    + tauto.
-    + destruct H as [Hle Hne].
-      destruct (S a' - b) eqn:gt.
-      * assert (b = S a') by (apply le_eq; split; assumption).
-        contradiction.
-      * discriminate.
+  intros a b. split.
+  - intros H. split.
+    + destruct (sub_nm_or_mn_0 a b); tauto.
+    + symmetry. apply sub_nz_diff, H.
+  - intros [Hle Hne].
+    contradict Hne.
+    apply le_eq. tauto.
 Qed.
 
 Lemma le_nz_diff : forall (a b : nat), a - b <> 0 -> b < a.
