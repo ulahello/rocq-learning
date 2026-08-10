@@ -132,17 +132,12 @@ Qed.
 Lemma sub_nz_diff : forall (n m : nat), n - m <> 0 -> n <> m.
 Proof.
   intros a. induction a as [| a' IHa'].
-  - intros b. rewrite sub_0_l. contradiction.
-  - intros [| b'].
-    + rewrite sub_0_r. tauto.
-    + rewrite sub_Sn_Sm.
-      intros H.
-      (* TODO: golf *)
-      enough (a' <> b') as H'.
-      * pose (S_compat_eq a' b') as E.
-        intros C.
-        apply H', E, C.
-      * apply IHa', H.
+  - intros b. rewrite sub_0_l. tauto.
+  - intros [| b']; try tauto.
+    rewrite sub_Sn_Sm.
+    intros H C.
+    apply -> S_compat_eq in C.
+    apply (IHa' b' H), C.
 Qed.
 
 Definition le (a b : nat) := a - b = 0.
