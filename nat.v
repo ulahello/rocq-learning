@@ -9,15 +9,6 @@ Inductive nat : Set :=
 Notation "0" := O.
 Notation "1" := (S O).
 
-(* TODO: Something about setoids ???? See
-   https://rocq-prover.org/doc/v8.12/refman/addendum/generalized-rewriting.html.
-   This might also help with the other proofs. *)
-Axiom Reflexive : forall (n : nat), n = n.
-Axiom Symmetric : forall (a b : nat), a = b -> b = a.
-Axiom Transitive : forall (a b c : nat), a = b -> b = c -> a = c.
-Axiom Injection : forall (a b : nat), S a = S b -> a = b.
-Axiom ConstructZero : forall (n : nat), S n <> 0.
-
 Fixpoint add (a b : nat) : nat :=
   match a with
   | O => b
