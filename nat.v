@@ -143,6 +143,12 @@ Proof. apply sub_annih. Qed.
 Theorem lt_irrefl : forall (n : nat), ~(n < n).
 Proof. unfold lt. tauto. Qed.
 
+Lemma le_0_l : forall (n : nat), 0 <= n.
+Proof. apply sub_0_l. Qed.
+
+Lemma le_0_r : forall (n : nat), n <= 0 -> n = 0.
+Proof. tauto. Qed.
+
 Lemma S_compat_le : forall (a b : nat), a <= b <-> S a <= S b.
 Proof.
   intros a b.
@@ -214,6 +220,14 @@ Proof.
       assumption.
     + do 2 rewrite add_n_S_m in H.
       apply IHc', H.
+Qed.
+
+Lemma add_compat_le_l : forall (a b c : nat), a <= b <-> c + a <= c + b.
+Proof.
+  intros a b c.
+  replace (c + a) with (a + c) by apply add_comm.
+  replace (c + b) with (b + c) by apply add_comm.
+  apply add_compat_le.
 Qed.
 
 Fixpoint mul (a b : nat) : nat :=
@@ -325,3 +339,26 @@ Proof.
   - apply Hn.
   - rewrite mul_1_l. assumption.
 Qed.
+
+Theorem mul_compat_le : forall (a b c : nat), c <> 0 -> a <= b <-> a * c <= b * c.
+Proof.
+  intros a. induction a as [| a' IHa'].
+  - intros b c Hc.
+    split; intros H; apply le_0_l.
+  - intros [| b'] c Hc.
+    + simpl. split; intros H.
+      * discriminate.
+      * apply le_0_r in H.
+        apply add_eq_0 in H.
+        -- contradiction.
+        -- assumption.
+    + simpl. split; intros H.
+      * apply S_compat_le in H.
+        apply add_compat_le_l, IHa'; assumption.
+      * apply add_compat_le_l in H.
+        apply -> S_compat_le.
+        apply <- IHa'.
+        -- apply H.
+        -- exact Hc.
+Qed.
+
