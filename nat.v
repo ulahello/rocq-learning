@@ -160,26 +160,15 @@ Proof.
   tauto.
 Qed.
 
-Theorem le_eq : forall (a b : nat), (a <= b /\ b <= a) <-> a = b.
+Theorem le_eq : forall (a b : nat), (a <= b /\ b <= a) -> a = b.
 Proof.
   intros a.
   induction a as [| a' IHa'].
-  - intros b; split.
-    + unfold le. rewrite sub_0_r.
-      intros [_ H]. symmetry. apply H.
-    + intros H. rewrite <- H.
-      split; apply le_refl.
-  - intros b. split.
-    + destruct b as [| b'].
-      * unfold le. intros [H _].
-        rewrite sub_0_r in H.
-        discriminate.
-      * intros [L R].
-        enough (a' = b') by (subst; reflexivity).
-        enough (a' <= b' /\ b' <= a') by (apply IHa'; assumption).
-        split; apply S_compat_le; assumption.
-    + intros H. rewrite H.
-      split; apply le_refl.
+  - intros b. symmetry. tauto.
+  - intros [| b']; try tauto.
+    intros [L R].
+    apply S_compat_eq, IHa'.
+    split; assumption.
 Qed.
 
 Theorem le_neg : forall (a b : nat), ~(a <= b) <-> b < a.
