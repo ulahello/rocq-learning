@@ -86,6 +86,9 @@ Proof.
   apply add_compat_eq with n, H.
 Qed.
 
+Lemma add_eq_0 : forall (n m : nat), n <> 0 -> n + m <> 0.
+Proof. intros [| n]; try tauto; discriminate. Qed.
+
 Definition pred (n : nat) : nat :=
   match n with
   | O => O
@@ -267,6 +270,12 @@ Proof.
   rewrite H, distr_l, mul_1_r. reflexivity.
 Qed.
 
+Lemma mul_eq_0 : forall (n m : nat), n <> 0 -> m <> 0 -> n * m <> 0.
+Proof.
+  intros [| n] [| m]; try contradiction.
+  discriminate.
+Qed.
+
 Theorem mul_comm : forall (a b : nat), a * b = b * a.
 Proof.
   intros a b. induction a as [| a' IHa'].
@@ -278,15 +287,15 @@ Theorem distr_r : forall (a b c : nat), (a + b) * c = (a * c) + (b * c).
 Proof.
   intros a b c.
   rewrite mul_comm, distr_l.
-  rewrite mul_comm, add_comm.
-  rewrite mul_comm, add_comm. reflexivity.
+  do 2 rewrite mul_comm, add_comm.
+  reflexivity.
 Qed.
 
 Theorem mul_assoc : forall (a b c : nat), (a * b) * c = a * (b * c).
 Proof.
-  intros a b c. induction a as [| a' IHa'].
-  - simpl. reflexivity.
-  - simpl. rewrite <- IHa', <- distr_r. reflexivity.
+  intros a b c. induction a as [| a' IHa']; simpl.
+  - reflexivity.
+  - rewrite <- IHa', <- distr_r. reflexivity.
 Qed.
 
 Theorem mul_id_exist : exists (s : nat), forall (n : nat), s * n = n.
@@ -294,12 +303,29 @@ Proof. exists 1. apply mul_1_l. Qed.
 
 Theorem mul_compat_eq : forall (a b c : nat), c <> 0 -> a * c = b * c <-> a = b.
 Proof.
-  intros a b c Hc. split.
-  - intros H. induction c as [| c' IHc'].
-    + contradiction.
-    + admit.
-  - intros H. subst. reflexivity.
-Admitted.
+  intros a. induction a as [| a' IHa'].
+  - intros [| b] c Hc; try tauto.
+    split; intros H.
+    + contradict H. symmetry.
+      apply add_eq_0, Hc.
+    + discriminate.
+  - intros [| b'] c Hc.
+    + split; intros H.
+      * contradict H.
+        apply add_eq_0, Hc.
+      * discriminate.
+    + simpl. split; intros H.
+      * apply S_compat_eq.
+        apply -> IHa'.
+        -- do 2 (rewrite add_comm in H; symmetry in H).
+           apply add_compat_eq in H.
+           apply H.
+        -- exact Hc.
+      * do 2 (rewrite add_comm; symmetry).
+        apply add_compat_eq, IHa'.
+        -- exact Hc.
+        -- apply S_compat_eq, H.
+Qed.
 
 Theorem mul_id_uniq : forall (n m : nat), n <> 0 -> m <> 0 -> m * n = n -> m = 1.
 Proof.
