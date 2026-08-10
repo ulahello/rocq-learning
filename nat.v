@@ -62,25 +62,22 @@ Qed.
 Theorem add_id_exist : exists (m : nat), forall (n : nat), m + n = n.
 Proof. exists 0. reflexivity. Qed.
 
+Lemma S_compat_eq : forall (a b : nat), S a = S b <-> a = b.
+Proof.
+  intros a b. split.
+  - intros H. inversion H. reflexivity.
+  - intros H. subst. reflexivity.
+Qed.
+
 Theorem add_compat_eq : forall (a b c : nat), a + c = b + c <-> a = b.
 Proof.
   intros a b c. split.
   - intros H. induction c as [| c' IHc'].
-    + rewrite add_0_r, add_0_r in H. assumption.
+    + do 2 rewrite add_0_r in H. assumption.
     + apply IHc'.
       rewrite add_n_S_m, add_n_S_m in H.
-      inversion H. reflexivity.
+      apply S_compat_eq, H.
   - intros H. subst. reflexivity.
-Qed.
-
-Lemma S_compat_eq : forall (a b : nat), S a = S b <-> a = b.
-Proof.
-  (* TODO: golf *)
-  intros a b.
-  assert (S a = a + 1) as Ha by (rewrite add_comm; reflexivity).
-  assert (S b = b + 1) as Hb by (rewrite add_comm; reflexivity).
-  rewrite Ha, Hb.
-  apply add_compat_eq.
 Qed.
 
 Theorem add_id_uniq : forall (n m : nat), m + n = n -> m = 0.
