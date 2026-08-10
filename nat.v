@@ -86,8 +86,7 @@ Qed.
 Theorem add_id_uniq : forall (n m : nat), m + n = n -> m = 0.
 Proof.
   intros n m H.
-  apply add_compat_eq with n.
-  rewrite add_0_l. assumption.
+  apply add_compat_eq with n, H.
 Qed.
 
 Definition pred (n : nat) : nat :=
@@ -142,10 +141,8 @@ Proof.
       enough (a' <> b') as H'.
       * pose (S_compat_eq a' b') as E.
         intros C.
-        apply H', E.
-        assumption.
-      * apply IHa'.
-        assumption.
+        apply H', E, C.
+      * apply IHa', H.
 Qed.
 
 Definition le (a b : nat) := a - b = 0.
@@ -174,7 +171,7 @@ Proof.
   induction a as [| a' IHa'].
   - intros b; split.
     + unfold le. rewrite sub_0_r.
-      intros [_ H]. symmetry. assumption.
+      intros [_ H]. symmetry. apply H.
     + intros H. rewrite <- H.
       split; apply le_refl.
   - intros b. split.
@@ -219,8 +216,7 @@ Proof.
   intros a. induction a as [| a' IHa'].
   - tauto.
   - intros [| b] H; try discriminate.
-    apply IHa', S_compat_le.
-    assumption.
+    apply IHa', S_compat_le, H.
 Qed.
 
 Lemma le_pred_l : forall (a b : nat), a <= b -> pred a <= b.
@@ -237,7 +233,7 @@ Theorem le_trans : forall (a b c : nat), a <= b -> b <= c -> a <= c.
     reflexivity.
   - intros [| b'] [| c'] L R; try discriminate.
     apply -> S_compat_le.
-    apply (IHa' b' c'); apply S_compat_le; assumption.
+    apply (IHa' b' c'); assumption.
 Qed.
 
 Theorem add_compat_le : forall (a b c : nat), a <= b <-> a + c <= b + c.
@@ -247,15 +243,12 @@ Proof.
     + do 2 rewrite add_0_r.
       assumption.
     + do 2 rewrite add_n_S_m.
-      apply S_compat_le.
-      assumption.
+      apply S_compat_le, IHc'.
   - induction c as [| c' IHc'].
     + do 2 rewrite add_0_r in H.
       assumption.
     + do 2 rewrite add_n_S_m in H.
-      apply S_compat_le in H.
-      apply IHc'.
-      assumption.
+      apply IHc', H.
 Qed.
 
 Fixpoint mul (a b : nat) : nat :=
