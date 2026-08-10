@@ -225,11 +225,8 @@ Qed.
 
 Lemma le_pred_l : forall (a b : nat), a <= b -> pred a <= b.
 Proof.
-  intros a. induction a as [| a' IHa'].
-  - tauto.
-  - intros [| b] H; try discriminate.
-    apply IHa', S_compat_le.
-    assumption.
+  intros [| a] b H; trivial.
+  apply S_compat_le, le_succ_r, H.
 Qed.
 
 Theorem le_trans : forall (a b c : nat), a <= b -> b <= c -> a <= c.
