@@ -50,6 +50,12 @@ Proof.
   - simpl. rewrite add_n_S_m, IHn'. reflexivity.
 Qed.
 
+Lemma add_1_l : forall (n : nat), 1 + n = S n.
+Proof. reflexivity. Qed.
+
+Lemma add_1_r : forall (n : nat), n + 1 = S n.
+Proof. intros n. apply add_comm. Qed.
+
 Theorem add_id_exist : exists (m : nat), forall (n : nat), m + n = n.
 Proof. exists 0. reflexivity. Qed.
 
@@ -264,15 +270,15 @@ Proof.
   - reflexivity.
   - simpl. rewrite IHa'.
     rewrite <- add_assoc, <- add_assoc. apply add_compat_eq.
-    assert (c + a' * b = a' * b + c) as H by apply add_comm.
-    rewrite add_assoc, add_assoc, H. reflexivity.
+    rewrite add_comm, <- add_assoc. apply add_compat_eq.
+    apply add_comm.
 Qed.
 
 Lemma mul_n_S_m : forall (n m : nat), n * S m = n + n * m.
 Proof.
   intros n m.
-  assert (S m = 1 + m) as H by reflexivity.
-  rewrite H, distr_l, mul_1_r. reflexivity.
+  rewrite <- add_1_l, distr_l, mul_1_r.
+  reflexivity.
 Qed.
 
 Lemma mul_eq_0 : forall (n m : nat), n <> 0 -> m <> 0 -> n * m <> 0.
@@ -356,4 +362,3 @@ Proof.
         apply -> S_compat_le.
         apply <- (IHa' b' c); assumption.
 Qed.
-
