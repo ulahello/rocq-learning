@@ -384,3 +384,11 @@ Proof.
   rewrite R, L, <- mul_assoc.
   apply div_triv.
 Qed.
+
+(* TODO: better name *)
+Lemma div_add : forall (a b c : nat), a | b -> a | c -> a | b + c.
+Proof.
+  intros a b c [m L] [n R].
+  rewrite L, R, <- distr_r.
+  apply div_triv.
+Qed.
