@@ -59,11 +59,11 @@ Proof. intros n. apply add_comm. Qed.
 Theorem add_id_exist : exists (m : nat), forall (n : nat), m + n = n.
 Proof. exists 0. reflexivity. Qed.
 
-Lemma S_compat_eq : forall (a b : nat), S a = S b <-> a = b.
+Lemma S_compat_eq : forall (a b : nat), S a = S b -> a = b.
 Proof.
-  intros a b. split.
-  - intros H. inversion H. reflexivity.
-  - intros H. subst. reflexivity.
+  intros a b H.
+  inversion H.
+  reflexivity.
 Qed.
 
 Theorem add_compat_eq : forall (a b c : nat), a + c = b + c <-> a = b.
@@ -75,6 +75,13 @@ Proof.
       rewrite add_n_S_m, add_n_S_m in H.
       apply S_compat_eq, H.
   - intros H. subst. reflexivity.
+Qed.
+
+Lemma add_compat_eq_l : forall (a b c : nat), c + a = c + b <-> a = b.
+Proof.
+  intros a b c.
+  rewrite (add_comm c a), (add_comm c b).
+  apply add_compat_eq.
 Qed.
 
 Theorem add_id_uniq : forall (n m : nat), m + n = n -> m = 0.
@@ -133,7 +140,7 @@ Proof.
   - intros [| b']; try tauto.
     rewrite sub_Sn_Sm.
     intros H C.
-    apply -> S_compat_eq in C.
+    apply S_compat_eq in C.
     apply (IHa' b' H), C.
 Qed.
 
@@ -326,14 +333,13 @@ Proof.
         apply add_eq_0, Hc.
       * discriminate.
     + simpl. split; intros H.
-      * apply S_compat_eq.
+      (* TODO: golf *)
+      * apply f_equal.
         apply -> IHa'.
-        -- do 2 (rewrite add_comm in H; symmetry in H).
-           apply add_compat_eq in H.
+        -- apply add_compat_eq_l in H.
            apply H.
         -- exact Hc.
-      * do 2 (rewrite add_comm; symmetry).
-        apply add_compat_eq, IHa'.
+      * apply add_compat_eq_l, IHa'.
         -- exact Hc.
         -- apply S_compat_eq, H.
 Qed.
