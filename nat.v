@@ -170,15 +170,14 @@ Proof.
   tauto.
 Qed.
 
-Theorem le_eq : forall (a b : nat), (a <= b /\ b <= a) -> a = b.
+Theorem le_eq : forall (a b : nat), a <= b -> b <= a -> a = b.
 Proof.
   intros a.
   induction a as [| a' IHa'].
   - intros b. symmetry. tauto.
   - intros [| b']; try tauto.
-    intros [L R].
-    apply S_compat_eq, IHa'.
-    split; assumption.
+    intros L R.
+    apply f_equal, IHa'; tauto.
 Qed.
 
 Theorem le_neg : forall (a b : nat), ~(a <= b) <-> b < a.
@@ -189,7 +188,7 @@ Proof.
     + symmetry. apply sub_nz_diff, H.
   - intros [Hle Hne].
     contradict Hne.
-    apply le_eq. tauto.
+    apply le_eq; tauto.
 Qed.
 
 Lemma le_nz_diff : forall (a b : nat), a - b <> 0 -> b < a.
