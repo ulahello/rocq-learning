@@ -377,3 +377,10 @@ Proof.
   exists k.
   reflexivity.
 Qed.
+
+Lemma div_trans : forall (a b c : nat), a | b -> b | c -> a | c.
+Proof.
+  intros a b c [m L] [n R].
+  rewrite R, L, <- mul_assoc.
+  apply div_triv.
+Qed.
