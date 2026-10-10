@@ -370,3 +370,10 @@ Qed.
 Definition divides (m n : nat) := exists k : nat, n = k * m.
 
 Notation "m | n" := (divides m n) (at level 70, right associativity).
+
+Lemma div_triv : forall (m k : nat), m | k * m.
+Proof.
+  intros m k.
+  exists k.
+  reflexivity.
+Qed.
