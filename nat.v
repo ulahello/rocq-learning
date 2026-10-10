@@ -366,3 +366,7 @@ Proof.
         apply -> S_compat_le.
         apply <- (IHa' b' c); assumption.
 Qed.
+
+Definition divides (m n : nat) := exists k : nat, n = k * m.
+
+Notation "m | n" := (divides m n) (at level 70, right associativity).
