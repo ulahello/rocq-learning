@@ -392,3 +392,13 @@ Proof.
   rewrite L, R, <- distr_r.
   apply div_triv.
 Qed.
+
+Lemma mul_compat_div : forall (a b c : nat), c <> 0 -> a | b <-> a * c | b * c.
+Proof.
+  intros a b c Hc.
+  split; intros [k H]; exists k.
+  - rewrite H.
+    apply mul_assoc.
+  - rewrite <- mul_assoc in H.
+    apply mul_compat_eq in H; assumption.
+Qed.
