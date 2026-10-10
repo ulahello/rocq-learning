@@ -238,8 +238,7 @@ Qed.
 Lemma add_compat_le_l : forall (a b c : nat), a <= b <-> c + a <= c + b.
 Proof.
   intros a b c.
-  replace (c + a) with (a + c) by apply add_comm.
-  replace (c + b) with (b + c) by apply add_comm.
+  rewrite (add_comm c a), (add_comm c b).
   apply add_compat_le.
 Qed.
 
