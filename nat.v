@@ -275,6 +275,17 @@ Proof.
     reflexivity.
 Qed.
 
+Theorem sub_compat_eq : forall (a b c : nat), c <= a -> c <= b -> (a - c = b - c <-> a = b).
+Proof.
+  intros a b c Ha Hb. split.
+  - intros H.
+    rewrite (sub_invertible a c Ha).
+    rewrite (sub_invertible b c Hb).
+    apply add_compat_eq.
+    exact H.
+  - intros H. subst. reflexivity.
+Qed.
+
 Fixpoint mul (a b : nat) : nat :=
   match a with
   | O => O
