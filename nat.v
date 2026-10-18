@@ -202,6 +202,9 @@ Proof.
     apply IHa', S_compat_le, H.
 Qed.
 
+Lemma le_succ_l : forall (a b : nat), S a <= b -> a <= b.
+Proof. intros a b. apply le_succ_r. Qed.
+
 Lemma le_pred_l : forall (a b : nat), a <= b -> pred a <= b.
 Proof.
   intros [| a] b H; trivial.
@@ -239,6 +242,37 @@ Proof.
   intros a b c.
   rewrite (add_comm c a), (add_comm c b).
   apply add_compat_le.
+Qed.
+
+Lemma sub_S_n_n : forall (n : nat), S n - n = S (n - n).
+Proof.
+  intros n. induction n as [| n' IHa'].
+  - reflexivity.
+  - simpl. rewrite IHa'.
+    reflexivity.
+Qed.
+
+Lemma S_sub_assoc : forall (a b : nat), b <= a -> S a - b = S (a - b).
+Proof.
+  intros a. induction a as [| a' IHa'].
+  - intros b H.
+    rewrite (le_0_r b H).
+    reflexivity.
+  - intros [| b'] H; trivial.
+    apply IHa', H.
+Qed.
+
+Lemma sub_invertible : forall (a b : nat), b <= a -> a = a - b + b.
+Proof.
+  intros a b. induction b as [| b' IHb']; intros H.
+  - symmetry. apply add_0_r.
+  - destruct a as [| a']. { discriminate. }
+    pose (le_pred_l (S b') (S a') H) as H'.
+    pose (IHb' H') as Hb'.
+    rewrite sub_Sn_Sm, Hb'.
+    rewrite S_sub_assoc by apply H.
+    rewrite <- add_1_r, add_assoc.
+    reflexivity.
 Qed.
 
 Fixpoint mul (a b : nat) : nat :=
