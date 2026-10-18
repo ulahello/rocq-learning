@@ -414,14 +414,21 @@ Qed.
 
 Lemma mul_prod_1 : forall (n m : nat), n * m = 1 -> n = 1 /\ m = 1.
 Proof.
-  intros [| n'] [| m'] H.
-  { discriminate. }
-  { rewrite mul_0_l in H.
-    discriminate. }
-  { rewrite mul_0_r in H.
-    discriminate. }
-  admit.
-Admitted.
+  intros [| n'].   { discriminate. }
+  intros [| m'] H. { rewrite mul_0_r in H. discriminate. }
+  assert (1 <= S n' * S m') as Hnm by apply sub_0_l.
+  assert (S n' <= 1) as Hn.
+  { destruct n' as [| n'].
+    - reflexivity.
+    - contradict H.
+      simpl. rewrite add_comm.
+      discriminate. }
+  assert (S n' = 1) as L by apply (le_eq (S n') 1 Hn), sub_0_l.
+  split.
+  - exact L.
+  - rewrite L, mul_1_l in H.
+    exact H.
+Qed.
 
 Theorem sub_distr_l : forall (a b c : nat), c <= b -> a * (b - c) = (a * b) - (a * c).
 Proof.
