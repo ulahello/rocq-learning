@@ -412,6 +412,19 @@ Proof.
         apply <- (IHa' b' c); assumption.
 Qed.
 
+Theorem sub_distr_l : forall (a b c : nat), c <= b -> a * (b - c) = (a * b) - (a * c).
+Proof.
+Admitted.
+
+Theorem sub_distr_r : forall (a b c : nat), b <= a -> (a - b) * c = (a * c) - (b * c).
+Proof.
+  intros a b c H.
+  rewrite mul_comm, sub_distr_l.
+  - rewrite mul_comm.
+    apply f_equal, mul_comm.
+  - exact H.
+Qed.
+
 Definition divides (m n : nat) := exists k : nat, n = k * m.
 
 Notation "m | n" := (divides m n) (at level 70, right associativity).
@@ -445,6 +458,20 @@ Proof.
   intros a b c [m L] [n R].
   rewrite L, R, <- distr_r.
   apply div_triv.
+Qed.
+
+Lemma div_sub : forall (a b c : nat), c <= b -> a | b -> a | c -> a | b - c.
+Proof.
+  intros [| a'] b c H [m L] [n R].
+  { apply div_0_l.
+    rewrite L, R, mul_0_r, sub_0_l.
+    reflexivity. }
+  rewrite L, R, <- sub_distr_r.
+  apply div_triv.
+  apply (mul_compat_le n m (S a')).
+  - discriminate.
+  - rewrite <- L, <- R.
+    exact H.
 Qed.
 
 Lemma mul_compat_div : forall (a b c : nat), c <> 0 -> a | b <-> a * c | b * c.
