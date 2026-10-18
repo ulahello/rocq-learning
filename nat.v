@@ -412,6 +412,17 @@ Proof.
         apply <- (IHa' b' c); assumption.
 Qed.
 
+Lemma mul_prod_1 : forall (n m : nat), n * m = 1 -> n = 1 /\ m = 1.
+Proof.
+  intros [| n'] [| m'] H.
+  { discriminate. }
+  { rewrite mul_0_l in H.
+    discriminate. }
+  { rewrite mul_0_r in H.
+    discriminate. }
+  admit.
+Admitted.
+
 Theorem sub_distr_l : forall (a b c : nat), c <= b -> a * (b - c) = (a * b) - (a * c).
 Proof.
 Admitted.
@@ -439,10 +450,32 @@ Qed.
 Lemma div_0_r : forall (n : nat), n | 0.
 Proof. exists 0. reflexivity. Qed.
 
-Lemma div_0_l : forall (n : nat), n = 0 -> 0 | n.
+Lemma div_0_l : forall (n : nat), n = 0 <-> 0 | n.
 Proof.
-  intros n H.
-  rewrite H. exact (div_0_r 0).
+  intros n. split.
+  - intros H. rewrite H. exact (div_0_r 0).
+  - intros [m H]. rewrite mul_0_r in H. exact H.
+Qed.
+
+Lemma bidiv_is_id : forall (a b : nat), a | b -> b | a -> a = b.
+Proof.
+  intros [| a].
+  - intros b L R.
+    symmetry. apply div_0_l, L.
+  - intros [| b] [m L] [n R].
+    { rewrite mul_0_r in R.
+      discriminate. }
+    assert (m * n = 1) as H.
+    { rewrite R, <- mul_assoc in L.
+      apply (mul_id_uniq (S b) (m * n)).
+      + discriminate.
+      + contradict L.
+        rewrite L, mul_0_l.
+        discriminate.
+      + symmetry. exact L. }
+    destruct (mul_prod_1 m n H) as [Hm Hn].
+    rewrite Hn, mul_1_l in R.
+    exact R.
 Qed.
 
 Lemma div_trans : forall (a b c : nat), a | b -> b | c -> a | c.
