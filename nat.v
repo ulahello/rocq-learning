@@ -423,6 +423,15 @@ Proof.
   reflexivity.
 Qed.
 
+Lemma div_0_r : forall (n : nat), n | 0.
+Proof. exists 0. reflexivity. Qed.
+
+Lemma div_0_l : forall (n : nat), n = 0 -> 0 | n.
+Proof.
+  intros n H.
+  rewrite H. exact (div_0_r 0).
+Qed.
+
 Lemma div_trans : forall (a b c : nat), a | b -> b | c -> a | c.
 Proof.
   intros a b c [m L] [n R].
