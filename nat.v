@@ -36,7 +36,7 @@ Proof.
   - simpl. rewrite IHn'. reflexivity.
 Qed.
 
-Lemma add_n_S_m : forall (n m : nat), n + S m = S (n + m).
+Lemma add_n_Sm : forall (n m : nat), n + S m = S (n + m).
 Proof.
   intros n m. induction n as [| n' IHn'].
   - reflexivity.
@@ -47,7 +47,7 @@ Theorem add_comm : forall (n m : nat), n + m = m + n.
 Proof.
   intros n m. induction n as [| n' IHn'].
   - rewrite add_0_r. reflexivity.
-  - simpl. rewrite add_n_S_m, IHn'. reflexivity.
+  - simpl. rewrite add_n_Sm, IHn'. reflexivity.
 Qed.
 
 Lemma add_1_l : forall (n : nat), 1 + n = S n.
@@ -72,7 +72,7 @@ Proof.
   - intros H. induction c as [| c' IHc'].
     + do 2 rewrite add_0_r in H. assumption.
     + apply IHc'.
-      rewrite add_n_S_m, add_n_S_m in H.
+      rewrite add_n_Sm, add_n_Sm in H.
       apply S_compat_eq, H.
   - intros H. subst. reflexivity.
 Qed.
@@ -228,12 +228,12 @@ Proof.
   - induction c as [| c' IHc'].
     + do 2 rewrite add_0_r.
       assumption.
-    + do 2 rewrite add_n_S_m.
+    + do 2 rewrite add_n_Sm.
       apply S_compat_le, IHc'.
   - induction c as [| c' IHc'].
     + do 2 rewrite add_0_r in H.
       assumption.
-    + do 2 rewrite add_n_S_m in H.
+    + do 2 rewrite add_n_Sm in H.
       apply IHc', H.
 Qed.
 
@@ -244,7 +244,7 @@ Proof.
   apply add_compat_le.
 Qed.
 
-Lemma sub_S_n_n : forall (n : nat), S n - n = S (n - n).
+Lemma sub_Sn_n : forall (n : nat), S n - n = S (n - n).
 Proof.
   intros n. induction n as [| n' IHa'].
   - reflexivity.
@@ -324,7 +324,7 @@ Proof.
     apply add_comm.
 Qed.
 
-Lemma mul_n_S_m : forall (n m : nat), n * S m = n + n * m.
+Lemma mul_n_Sm : forall (n m : nat), n * S m = n + n * m.
 Proof.
   intros n m.
   rewrite <- add_1_l, distr_l, mul_1_r.
@@ -341,7 +341,7 @@ Theorem mul_comm : forall (a b : nat), a * b = b * a.
 Proof.
   intros a b. induction a as [| a' IHa'].
   - rewrite mul_0_r. reflexivity.
-  - simpl. rewrite IHa', mul_n_S_m. reflexivity.
+  - simpl. rewrite IHa', mul_n_Sm. reflexivity.
 Qed.
 
 Theorem distr_r : forall (a b c : nat), (a + b) * c = (a * c) + (b * c).
